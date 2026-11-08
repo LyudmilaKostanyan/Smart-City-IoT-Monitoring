@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.db
+.streamlit/
+.DS_Store
+
+# Local Mosquitto runtime files
+tools/mosquitto/*.deb
+tools/mosquitto/*.pid
+tools/mosquitto/*.log

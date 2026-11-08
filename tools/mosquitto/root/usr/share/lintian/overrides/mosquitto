@@ -1,0 +1,13 @@
+# Forwarded: https://github.com/warmcat/libwebsockets/pull/2927#Open
+mosquitto: spelling-error-in-binary Inital Initial [usr/sbin/mosquitto]
+mosquitto: spelling-error-in-binary witholding withholding [usr/sbin/mosquitto]
+
+# Not in source, might be a dep
+mosquitto: spelling-error-in-binary destory destroy [usr/sbin/mosquitto]
+
+# It looks like a dynamic Plugin, doesn't it?
+mosquitto: sharedobject-in-library-directory-missing-soname [usr/lib/*/mosquitto_dynamic_security.so]
+
+# May be fixed in XML source
+# Relate-to: https://github.com/eclipse/mosquitto/issues/2850
+mosquitto: groff-message troff:<standard input>:*: warning*: * [usr/share/man/man*/mosquitto*.gz:1]
