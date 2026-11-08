@@ -1,5 +1,8 @@
-# MQTT client for publishing and subscribing
+# MQTT client (kept for comparison with the master branch)
 paho-mqtt>=2.1.0,<3
+
+# Kafka client for producer/consumer
+kafka-python>=2.0.2,<3
 
 # Dashboard and data visualization
 streamlit>=1.40.0,<2

@@ -39,7 +39,10 @@ def readings_to_frame(rows: list[dict]) -> pd.DataFrame:
 
 def main() -> None:
     st.title("Smart City Environmental Monitoring")
-    st.caption("Yerevan districts: Kentron, Erebuni, Nor Nork, Malatsia")
+    st.caption(
+        "Kafka pipeline · SQLite · Yerevan districts: "
+        "Kentron, Erebuni, Nor Nork, Malatsia"
+    )
 
     db = load_db()
     try:
@@ -49,7 +52,8 @@ def main() -> None:
 
     if total == 0:
         st.warning(
-            "No data in SQLite yet. Start Mosquitto, Subscriber and Publisher first."
+            "No data in SQLite yet. Start Kafka, the Kafka consumer and the "
+            "Kafka publisher first."
         )
         return
 

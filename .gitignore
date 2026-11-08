@@ -9,3 +9,10 @@ __pycache__/
 tools/mosquitto/*.deb
 tools/mosquitto/*.pid
 tools/mosquitto/*.log
+
+# Local Kafka distribution and runtime data
+tools/kafka/
+tools/kafka-data/
+tools/kafka-config/kafka.pid
+tools/kafka-config/kafka.log
+/tmp/kafka.tgz
