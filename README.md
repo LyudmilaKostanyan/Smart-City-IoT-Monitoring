@@ -1,174 +1,214 @@
-# Smart City Environmental Monitoring System
+# Smart City Multilayer Architecture Design
 
-Educational IoT project that simulates environmental sensors across Yerevan districts, transfers readings over MQTT, stores them in SQLite, and visualizes them in a Streamlit dashboard.
+Conceptual architecture assignment for a Smart City platform with seven layers:
 
-## Architecture
+1. IoT Layer  
+2. Network Layer  
+3. Edge/Fog Layer  
+4. Data Platform  
+5. AI/Analytics Layer  
+6. Application Layer  
+7. Security Layer (cross-cutting)
+
+**Branch:** `smart-city-architecture` (from `master`)  
+**Repository baseline:** Smart-City-IoT-Monitoring (Python, MQTT, SQLite, Streamlit)
+
+> This branch is about **architecture design**, not a full city platform implementation.  
+> Do not assume Kafka, AI anomaly services, TLS/auth, traffic sensors, or admin UI are already deployed.
+
+---
+
+## Overview
+
+Assignment №1 delivers a target multilayer Smart City architecture inspired by the existing educational MQTT environmental monitoring system.
+
+Existing demo path:
 
 ```text
-Sensor Simulator → MQTT Publisher → Mosquitto Broker
-                                          ↓
-                                   MQTT Subscriber
-                                          ↓
-                                      SQLite DB
-                                          ↓
-                                 Streamlit Dashboard
+Sensor Simulator → MQTT → Validator/Subscriber → SQLite → Streamlit Dashboard
 ```
 
-Districts: **Kentron**, **Erebuni**, **Nor Nork**, **Malatsia**
+Target conceptual path:
 
-Each reading contains:
+```text
+Sensors → Network → Edge/Fog → Data Platform → AI/Analytics → Applications
+                 + Security controls across all layers
+```
 
-- `sensor_id`
-- `location`
-- `timestamp`
-- `temperature`
-- `humidity`
-- `air_quality`
+---
 
-## Requirements
+## Problem Description
 
-- Ubuntu / Linux
-- Python 3.12+
-- Project virtual environment (already prepared in `.venv`)
+A Smart City needs more than sensor charts. It needs a managed architecture for:
 
-Python packages are listed in `requirements.txt`:
+- collecting environmental and traffic data;
+- secure network delivery;
+- edge processing;
+- a scalable data platform;
+- analytics and anomaly detection;
+- application interfaces for operators;
+- a cross-cutting security model.
 
-- `paho-mqtt`
-- `streamlit`
-- `pandas`
-- `plotly`
+The goal of this branch is to design and justify that architecture.
 
-SQLite is included in Python’s standard library. Eclipse Mosquitto is bundled locally under `tools/mosquitto/` (no `sudo` install required).
+---
 
-## First-time setup
+## Architecture Concepts
+
+| Concept | Meaning |
+|---|---|
+| Layered architecture | Clear separation of concerns across 7 layers |
+| Existing | Already present in the MQTT demo on `master` |
+| Inspiration | Ideas from other branches (`kafka-pipeline`, `digital-twin`, `security-risk-assessment`) |
+| Planned / Conceptual | Target component that is not implemented yet |
+| Cross-cutting security | Security controls that apply across all layers |
+| Data flow | Sensors → … → Applications |
+
+Key technologies in the target model:
+
+- IoT sensors + gateways  
+- MQTT / TCP/IP  
+- Edge validation and preprocessing  
+- Kafka + persistent storage  
+- Analytics / anomaly detection / decision support  
+- Monitoring + admin/alert UIs  
+- Authn, Authz, TLS, secure data handling  
+
+---
+
+## Architecture Diagram
+
+Source and exports:
+
+- `architecture.mmd` — Mermaid source  
+- `architecture.svg` — vector image  
+- `architecture.png` — raster preview  
+
+The diagram shows:
+
+- all seven layers;
+- main components;
+- primary data-flow arrows;
+- dashed security-control links;
+- Existing vs Planned distinction via node labels/colors.
+
+Embedded preview:
+
+![Smart City multilayer architecture](architecture.png)
+
+---
+
+## Example Output
+
+Example conceptual scenario output (alert path):
+
+```text
+[IoT]      Kentron air_quality reading = 118
+[Network]  MQTT topic delivery OK
+[Edge]     schema valid; threshold flag = true
+[Data]     event ingested + stored
+[AI]       anomaly_score high vs district baseline
+[App]      ALERT: Abnormal air pollution in Kentron
+[Security] publisher authenticated; operator authorized; TLS enabled (target design)
+```
+
+Diagram-level example output is the layered chart in `architecture.png`.
+
+---
+
+## Explanation of Output
+
+- High pollution starts as an IoT measurement, not as a dashboard-only event.  
+- Edge validation prevents malformed data from polluting analytics.  
+- Data Platform keeps the event available for history and fan-out.  
+- AI/Analytics decides whether the spike is an anomaly.  
+- Application Layer presents the alert to a human operator.  
+- Security explains why untrusted publishers/users should not be able to forge or silently view such alerts in the target architecture.
+
+The existing MQTT demo can show environmental charts today, but the full alert/AI/Kafka/security path above is **conceptual**.
+
+---
+
+## How to View the Diagram
+
+No build or compilation step is required for this architecture assignment.
 
 ```bash
 cd /home/lyudmila/Desktop/tt
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+
+# Raster
+xdg-open architecture.png
+
+# Vector
+xdg-open architecture.svg
+
+# Source
+less architecture.mmd
 ```
 
-## Quick start (one script)
+You can also paste `architecture.mmd` into any Mermaid live editor or Markdown preview that supports Mermaid.
 
-Starts broker, subscriber, publisher, dashboard, and opens the browser:
+Related report:
 
 ```bash
-cd /home/lyudmila/Desktop/tt
-./start_demo.sh
+less architecture.md
 ```
 
-Stop everything with `Ctrl+C`.
+---
 
-## How to run (4 terminals)
+## Technologies
 
-Activate the virtual environment in every terminal:
+### Existing in the MQTT baseline (`master`)
 
-```bash
-cd /home/lyudmila/Desktop/tt
-source .venv/bin/activate
-```
+| Technology | Role |
+|---|---|
+| Python sensor simulator | IoT demo telemetry |
+| MQTT + Mosquitto | Network messaging |
+| `message_validator.py` | Edge-like validation prototype |
+| SQLite | Demo persistence |
+| Streamlit + Pandas + Plotly | Monitoring UI / simple charts |
 
-### 1. Start MQTT Broker
+### Planned / conceptual for the target architecture
 
-```bash
-./tools/mosquitto/start_broker.sh
-```
+| Technology | Role |
+|---|---|
+| Traffic sensors + gateways | Broader IoT coverage |
+| MQTT TLS + authentication + ACL | Network security hardening |
+| Fog/edge workers | Filtering and local preprocessing |
+| Apache Kafka | Data platform ingestion |
+| PostgreSQL / Timescale (or similar) | City-scale storage |
+| Anomaly detection + decision support | AI/Analytics |
+| Admin / Alert UI | Application operations |
+| Cross-layer security monitoring | Security operations |
 
-Expected output: broker listening on `localhost:1883`.
+### Inspiration from other branches
 
-Stop later with:
+| Branch | Inspiration |
+|---|---|
+| `kafka-pipeline` | Streaming ingestion |
+| `digital-twin` | Twin/analytics presentation |
+| `security-risk-assessment` | Threat/risk-oriented security thinking |
 
-```bash
-./tools/mosquitto/stop_broker.sh
-```
+---
 
-> Do **not** run broker scripts with `source`. Use `./tools/mosquitto/start_broker.sh`.
+## Limitations
 
-### 2. Start MQTT Subscriber (saves to SQLite)
+1. This is an architecture design package, not a deployed Smart City platform.  
+2. Proposed components must not be described as already implemented.  
+3. Current demo broker config remains educational (`allow_anonymous true` on `master`).  
+4. Diagram exports are helpers for presentation; the authoritative structure is `architecture.mmd` + `architecture.md`.  
+5. No claim of penetration testing or production readiness.
 
-```bash
-cd subscriber
-python run_subscriber.py
-```
+---
 
-Database file: `data/smartcity.db`
-
-### 3. Start MQTT Publisher (sensor simulator)
-
-```bash
-cd simulator
-python run_publisher.py --cycles 0 --interval 2
-```
-
-- `--cycles 0` — run forever (stop with `Ctrl+C`)
-- `--cycles 3` — run 3 cycles only
-- each cycle publishes **4** sensor messages (one per district)
-
-Optional console-only simulator (no MQTT):
-
-```bash
-cd simulator
-python run_simulator.py --cycles 5 --interval 2
-```
-
-### 4. Start Streamlit Dashboard
-
-```bash
-cd dashboard
-streamlit run app.py
-```
-
-Open in browser: [http://localhost:8501](http://localhost:8501)
-
-## Useful checks
-
-Inspect stored readings:
-
-```bash
-cd database
-python check_db.py --limit 50
-```
-
-Manual MQTT test (optional):
-
-```bash
-source tools/mosquitto/env.sh
-mosquitto_sub -h localhost -t 'smartcity/sensors'
-```
-
-In another terminal:
-
-```bash
-source tools/mosquitto/env.sh
-mosquitto_pub -h localhost -t 'smartcity/sensors' -m '{"hello":"test"}'
-```
-
-## Project structure
+## Repository files for this assignment
 
 ```text
-tt/
-├── simulator/          # virtual sensors + MQTT publisher
-├── subscriber/         # MQTT subscriber + validation
-├── database/           # SQLite helpers
-├── dashboard/          # Streamlit UI
-├── data/               # smartcity.db
-├── tools/mosquitto/    # local Mosquitto broker
-├── requirements.txt
-└── README.md
+architecture.md      # full architecture report
+architecture.mmd     # Mermaid diagram source
+architecture.svg     # vector export
+architecture.png     # PNG preview
+README.md            # this file
 ```
 
-## MQTT topic
-
-All sensor readings are published to:
-
-```text
-smartcity/sensors
-```
-
-## Notes for demo
-
-1. Start components in this order: **Broker → Subscriber → Publisher → Dashboard**.
-2. If the dashboard is empty, check that Subscriber is running and Publisher is sending data.
-3. `--cycles 3` means 3 rounds × 4 sensors = **12 rows**, not 3 rows.
-4. Do not open `data/smartcity.db` as a text file; use `check_db.py`.
+Optional: the original MQTT monitoring system from `master` can still be explored for hands-on IoT context, but it is not the deliverable of Assignment №1.

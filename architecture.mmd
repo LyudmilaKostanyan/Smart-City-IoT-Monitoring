@@ -1,0 +1,112 @@
+%% Smart City Multilayer Architecture
+%% Conceptual target design inspired by Smart-City-IoT-Monitoring
+%% Existing = MQTT demo components; Planned = target city-scale components
+%% Diagram labels are in English for presentation clarity
+
+flowchart TB
+    %% ========== IoT Layer ==========
+    subgraph L1["1. IoT Layer"]
+        direction LR
+        ENV["Environmental Sensors<br/>temp / humidity / AQI<br/>(Existing simulator + Planned field devices)"]
+        TRF["Traffic Sensors<br/>flow / occupancy<br/>(Planned)"]
+        GW["Device Gateways<br/>(Planned)"]
+    end
+
+    %% ========== Network Layer ==========
+    subgraph L2["2. Network Layer"]
+        direction LR
+        MQTT["MQTT Broker<br/>Mosquitto / topics<br/>(Existing demo)"]
+        TCP["TCP/IP Connectivity<br/>Wi-Fi / Ethernet / LPWAN<br/>(Planned city fabric)"]
+        TLSN["MQTT TLS + Authn/ACL<br/>(Planned hardening)"]
+    end
+
+    %% ========== Edge / Fog Layer ==========
+    subgraph L3["3. Edge / Fog Layer"]
+        direction LR
+        VAL["Schema Validation<br/>(Existing message_validator)"]
+        FLT["Filtering / Dedup<br/>(Planned)"]
+        PRE["Local Preprocessing<br/>thresholds / light aggregate<br/>(Planned)"]
+    end
+
+    %% ========== Data Platform ==========
+    subgraph L4["4. Data Platform"]
+        direction LR
+        ING["Stream Ingestion<br/>Apache Kafka<br/>(Inspiration → Planned)"]
+        STORE["Persistent Storage<br/>SQLite demo Existing<br/>Timescale/PostgreSQL Planned"]
+        SERVE["Serving / Query Access<br/>(Planned)"]
+    end
+
+    %% ========== AI / Analytics Layer ==========
+    subgraph L5["5. AI / Analytics Layer"]
+        direction LR
+        AN["Environmental Analytics<br/>(Planned; Pandas charts Existing)"]
+        AD["Anomaly Detection<br/>air / traffic anomalies<br/>(Planned)"]
+        DS["Decision Support<br/>alert candidates<br/>(Planned)"]
+        DT["Digital Twin View<br/>(Inspiration → optional)"]
+    end
+
+    %% ========== Application Layer ==========
+    subgraph L6["6. Application Layer"]
+        direction LR
+        MON["Monitoring Dashboard<br/>Streamlit<br/>(Existing)"]
+        ADM["Admin Interface<br/>(Planned)"]
+        ALT["Alert / Operator UI<br/>(Planned)"]
+    end
+
+    %% ========== Security Layer cross-cutting ==========
+    subgraph L7["7. Security Layer — cross-cutting controls"]
+        direction LR
+        ID["Authentication<br/>devices + users<br/>(Planned)"]
+        AZ["Authorization / ACL<br/>(Planned)"]
+        ENC["TLS + Secure Data Handling<br/>(Planned)"]
+        MONSEC["Security Monitoring<br/>+ Risk Assessment process<br/>(Inspiration)"]
+    end
+
+    %% Primary data flow
+    ENV --> GW
+    TRF --> GW
+    GW --> MQTT
+    TCP --- MQTT
+    MQTT --> VAL
+    TLSN -.-> MQTT
+    VAL --> FLT --> PRE
+    PRE --> ING
+    ING --> STORE
+    STORE --> SERVE
+    SERVE --> AN
+    SERVE --> AD
+    AN --> DS
+    AD --> DS
+    DT -.-> DS
+    DS --> MON
+    DS --> ALT
+    SERVE --> MON
+    ADM -.-> SERVE
+
+    %% Security touches every layer (dashed = policy/control plane)
+    ID -.-> GW
+    ID -.-> MQTT
+    ID -.-> MON
+    ID -.-> ADM
+    AZ -.-> MQTT
+    AZ -.-> ING
+    AZ -.-> SERVE
+    AZ -.-> ALT
+    ENC -.-> TCP
+    ENC -.-> MQTT
+    ENC -.-> STORE
+    MONSEC -.-> MQTT
+    MONSEC -.-> ING
+    MONSEC -.-> AD
+    MONSEC -.-> ALT
+
+    %% Styling for readability in presentations
+    classDef existing fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20;
+    classDef planned fill:#E3F2FD,stroke:#1565C0,color:#0D47A1;
+    classDef security fill:#FFF3E0,stroke:#EF6C00,color:#E65100;
+    classDef layer fill:#FAFAFA,stroke:#616161,color:#212121;
+
+    class ENV,MQTT,VAL,MON existing;
+    class TRF,GW,TCP,TLSN,FLT,PRE,ING,SERVE,AN,AD,DS,DT,ADM,ALT planned;
+    class STORE existing;
+    class ID,AZ,ENC,MONSEC security;
