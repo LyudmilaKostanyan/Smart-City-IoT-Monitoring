@@ -11,16 +11,16 @@ Branch for this assignment: `security-risk-assessment` (created from `master`).
 
 ---
 
-## Overview / Обзор
+## Overview
 
-Проект моделирует мониторинг окружающей среды по районам Еревана и поверх этой архитектуры выполняет учебную оценку киберрисков:
+The project models environmental monitoring across Yerevan districts and, on top of that architecture, performs an educational cybersecurity risk assessment:
 
-- анализ активов, точек входа и границ доверия;
-- структурированная Threat Model (10 угроз);
-- расчёт риска `Probability × Impact`;
-- рекомендации по защитным мерам;
-- интерактивный Streamlit security dashboard;
-- Markdown-отчёт `security_assessment.md`.
+- asset, entry-point, and trust-boundary analysis;
+- structured Threat Model (10 threats);
+- risk scoring with `Probability × Impact`;
+- security control recommendations;
+- interactive Streamlit security dashboard;
+- Markdown report `security_assessment.md`.
 
 Districts: **Kentron**, **Erebuni**, **Nor Nork**, **Malatsia**
 
@@ -28,44 +28,44 @@ Sensor reading fields: `sensor_id`, `location`, `timestamp`, `temperature`, `hum
 
 ---
 
-## Problem Description / Описание проблемы
+## Problem Description
 
-Умный город собирает телеметрию сенсоров. Если MQTT-брокер, канал передачи, база или dashboard недостаточно защищены, возможны:
+A Smart City collects sensor telemetry. If the MQTT broker, transport channel, database, or dashboard is insufficiently protected, the following may occur:
 
-- несанкционированный доступ к брокеру;
-- подмена показаний сенсоров;
-- перехват сообщений;
-- отказ в обслуживании (DDoS) брокера;
-- несанкционированный доступ к SQLite;
-- утечка данных;
-- ransomware-воздействие на данные приложения;
-- просмотр dashboard без аутентификации.
+- unauthorized broker access;
+- spoofed sensor readings;
+- message interception;
+- denial of service (DDoS) against the broker;
+- unauthorized SQLite access;
+- data theft;
+- ransomware impact on application data;
+- dashboard viewing without authentication.
 
-Задача Assignment №13 — не атаковать систему, а **смоделировать угрозы**, оценить риски и предложить меры защиты.
+The goal of Assignment №13 is not to attack the system, but to **model threats**, assess risks, and propose mitigations.
 
 ---
 
-## Threat Modeling Concepts / Концепции Threat Modeling
+## Threat Modeling Concepts
 
-| Понятие | Смысл |
+| Concept | Meaning |
 |---|---|
-| Asset | Что защищаем (телеметрия, брокер, БД, UI, доверие к источнику) |
-| Entry point | Где система принимает внешнее взаимодействие |
-| Trust boundary | Где меняются допущения о доверии |
-| Threat | Потенциальное негативное воздействие |
-| Existing control | Уже подтверждённый контроль в коде/конфиге |
-| Proposed control | Рекомендация, ещё не внедрённая автоматически |
-| Illustrative risk | Учебная оценка P/I без пентеста |
+| Asset | What we protect (telemetry, broker, database, UI, trust in the source) |
+| Entry point | Where the system accepts external interaction |
+| Trust boundary | Where trust assumptions change |
+| Threat | A potential negative impact |
+| Existing control | A control already confirmed in code/config |
+| Proposed control | A recommendation that is not auto-applied |
+| Illustrative risk | Educational P/I estimate without penetration testing |
 
-Метки доказательности:
+Evidence labels:
 
-- **Confirmed finding** — видно в коде/конфиге;
-- **Hypothetical scenario** — учебный сценарий атаки;
-- **Proposed improvement** — предлагаемая мера, не факт внедрения.
+- **Confirmed finding** — visible in code/config;
+- **Hypothetical scenario** — educational attack scenario;
+- **Proposed improvement** — recommended control, not an implemented fact.
 
 ---
 
-## System Architecture / Архитектура
+## System Architecture
 
 ### MQTT monitoring data flow
 
@@ -98,9 +98,9 @@ tests/                         Unit tests
 
 ---
 
-## Risk Assessment Methodology / Методика оценки рисков
+## Risk Assessment Methodology
 
-Учебная формула (не официальный стандарт):
+Educational formula (not an official standard):
 
 ```text
 Risk Score = Probability × Impact
@@ -114,13 +114,13 @@ Probability / Impact ∈ {1, 2, 3, 4, 5}
 | 8–14 | Medium |
 | 15–25 | High |
 
-Пороги конфигурируются через `RiskThresholds` в `security/risk_calculator.py`.
+Thresholds are configurable through `RiskThresholds` in `security/risk_calculator.py`.
 
-Стартовые оценки — `illustrative_estimate` на основе статического обзора Stage 1.
+Initial scores are `illustrative_estimate` values based on the Stage 1 static review.
 
 ---
 
-## Example Output / Пример вывода
+## Example Output
 
 ```text
 Threat ID | P | I | Score | Level
@@ -138,7 +138,7 @@ T-10      | 2 | 4 | 8     | Medium IoT device or sensor compromise
 Summary: total=10, high=2, medium=6, low=2, highest_score=16
 ```
 
-Программно:
+Programmatically:
 
 ```bash
 source .venv/bin/activate
@@ -153,16 +153,16 @@ PY
 
 ---
 
-## Explanation of Output / Пояснение результата
+## Explanation of Output
 
-- **T-01 / T-02 = High**, потому что в `tools/mosquitto/mosquitto.conf` подтверждено `allow_anonymous true`, а validator проверяет схему сообщения, но не личность publisher.
-- **T-09 = Low**, потому что malformed payload уже отбрасывается `message_validator.py`.
-- **T-03 = Low** в контексте localhost-демо: TLS отсутствует, но практический перехват на loopback менее вероятен.
-- Значения можно менять в `security_dashboard.py` (session what-if); это не новый пентест.
+- **T-01 / T-02 = High** because `tools/mosquitto/mosquitto.conf` confirms `allow_anonymous true`, while the validator checks message schema but not publisher identity.
+- **T-09 = Low** because malformed payloads are already rejected by `message_validator.py`.
+- **T-03 = Low** in the localhost demo context: TLS is absent, but practical interception on loopback is less likely.
+- Values can be changed in `security_dashboard.py` (session what-if); that is not a new penetration test.
 
 ---
 
-## How to Install and Run / Установка и запуск
+## How to Install and Run
 
 ### Requirements
 
@@ -231,7 +231,7 @@ less security_assessment.md
 
 ---
 
-## Supported Parameters / Поддерживаемые параметры
+## Supported Parameters
 
 ### Publisher (`simulator/run_publisher.py`)
 
@@ -287,7 +287,7 @@ streamlit run security_dashboard.py --server.port 8502
 
 ---
 
-## Security Recommendations / Рекомендации по безопасности
+## Security Recommendations
 
 ### Already present (confirmed)
 
@@ -314,14 +314,14 @@ Details: `security/recommendations.py` and section 10 of `security_assessment.md
 
 ---
 
-## Limitations / Ограничения
+## Limitations
 
-1. Это **не пентест** и не red-team exercise.
-2. Probability/Impact — illustrative estimates.
-3. OS firewall, точный bind address и file mode БД динамически не аудировались.
-4. Ветки `kafka-pipeline` и `digital-twin` не являются основным объектом этой оценки.
-5. Security dashboard не меняет конфигурацию Mosquitto.
-6. Рекомендации не применяются автоматически без вашего разрешения.
+1. This is **not** a penetration test and not a red-team exercise.
+2. Probability/Impact values are illustrative estimates.
+3. OS firewall, exact bind address, and database file mode were not audited dynamically.
+4. Branches `kafka-pipeline` and `digital-twin` are not the primary scope of this assessment.
+5. The security dashboard does not change Mosquitto configuration.
+6. Recommendations are not applied automatically without explicit permission.
 
 ---
 
