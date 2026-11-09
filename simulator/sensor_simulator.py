@@ -21,11 +21,12 @@ class SensorConfig:
     base_air_quality: float
 
 
+# Mapped to Digital Twin districts: Kentron, Arabkir, Shengavit.
+# Baselines are late-autumn style demonstration values for Yerevan.
 DEFAULT_SENSORS: list[SensorConfig] = [
     SensorConfig("sensor_01", "Kentron", 4.5, 78.0, 48.0),
-    SensorConfig("sensor_02", "Erebuni", 5.0, 72.0, 72.0),
-    SensorConfig("sensor_03", "Nor Nork", 3.5, 82.0, 38.0),
-    SensorConfig("sensor_04", "Malatsia", 4.0, 80.0, 32.0),
+    SensorConfig("sensor_02", "Arabkir", 4.0, 76.0, 42.0),
+    SensorConfig("sensor_03", "Shengavit", 5.0, 74.0, 68.0),
 ]
 
 

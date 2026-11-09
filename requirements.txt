@@ -1,7 +1,6 @@
 # MQTT client for publishing and subscribing
 paho-mqtt>=2.1.0,<3
 
-# Dashboard and data visualization
+# Digital Twin dashboard
 streamlit>=1.40.0,<2
 pandas>=2.2.0,<3
-plotly>=5.24.0,<6

@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
-# Start the full Smart City demo and open the dashboard in a browser.
+# Start the Smart City MQTT + Digital Twin demo and open the dashboard.
 # Usage: ./start_demo.sh
 # Stop:  Ctrl+C
+#
+# Starts:
+#   1) Mosquitto MQTT broker
+#   2) MQTT subscriber (writes to SQLite)
+#   3) MQTT publisher / sensor simulator
+#   4) Streamlit dashboard (Live Monitoring + Digital Twin tabs)
 
 set -euo pipefail
 
@@ -41,15 +47,22 @@ fi
 
 cd "${ROOT_DIR}"
 
+# Avoid duplicate leftover processes from earlier runs.
+pkill -f "${ROOT_DIR}/subscriber/run_subscriber.py" 2>/dev/null || true
+pkill -f "${ROOT_DIR}/simulator/run_publisher.py" 2>/dev/null || true
+pkill -f "streamlit run ${ROOT_DIR}/dashboard/app.py" 2>/dev/null || true
+sleep 0.3
+
 echo "1/4 Starting MQTT broker..."
 ./tools/mosquitto/start_broker.sh
 
-echo "2/4 Starting MQTT subscriber..."
+echo "2/4 Starting MQTT subscriber (SQLite)..."
 "${VENV_PYTHON}" subscriber/run_subscriber.py > /tmp/smartcity_subscriber.log 2>&1 &
 SUB_PID=$!
 
-echo "3/4 Starting MQTT publisher..."
-"${VENV_PYTHON}" simulator/run_publisher.py --cycles 0 --interval 2 > /tmp/smartcity_publisher.log 2>&1 &
+echo "3/4 Starting MQTT publisher (sensor simulator)..."
+"${VENV_PYTHON}" simulator/run_publisher.py --cycles 0 --interval 2 \
+  > /tmp/smartcity_publisher.log 2>&1 &
 PUB_PID=$!
 
 echo "4/4 Starting Streamlit dashboard..."
@@ -58,7 +71,7 @@ echo "4/4 Starting Streamlit dashboard..."
 DASH_PID=$!
 
 echo "Waiting for dashboard..."
-for _ in $(seq 1 30); do
+for _ in $(seq 1 40); do
   if curl -s -o /dev/null "http://127.0.0.1:8501/"; then
     break
   fi
@@ -74,8 +87,11 @@ else
 fi
 
 echo
-echo "Demo is running."
+echo "Digital Twin demo is running."
 echo "Dashboard: ${DASHBOARD_URL}"
+echo "UI: Digital Twin only"
+echo "Districts: Kentron, Arabkir, Shengavit"
+echo
 echo "Logs:"
 echo "  /tmp/smartcity_subscriber.log"
 echo "  /tmp/smartcity_publisher.log"
@@ -83,7 +99,6 @@ echo "  /tmp/smartcity_dashboard.log"
 echo
 echo "Press Ctrl+C to stop everything."
 
-# Keep the script alive while child processes run.
 while kill -0 "${DASH_PID}" 2>/dev/null; do
   sleep 1
 done
